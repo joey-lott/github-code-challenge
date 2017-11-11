@@ -7,25 +7,31 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Dashboard</div>
+                <div class="panel-heading">Code Challenge - Github User Search</div>
 
                 <div class="panel-body">
 
-                  <form action="/" method="post" id="searchForm">
+                  <div class="row">
 
-                    <div class="form-group row">
-                      <label class="col-md-2 form-group">Search GitHub for User:</label>
-                      <div class="col-md-6">
-                        <input type="text" id="search" class="form-control">
+                    <form action="/" method="post" id="searchForm">
+
+                      <div class="form-group">
+                        <label class="col-md-2 form-group">Search GitHub for User:</label>
+                        <div class="col-md-6">
+                          <input type="text" id="search" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                          <button class="btn btn-primary">SEARCH</button>
+                        </div>
                       </div>
-                      <div class="col-md-4">
-                        <button class="btn btn-primary">SEARCH</button>
-                      </div>
-                    </div>
 
-                  </form>
+                    </form>
 
-                  <div id="results" />
+                  </div>
+
+                  <div id="results" class="well"></div>
+
+                  <div class="alert alert-info" id="message"></div>
 
             </div>
         </div>
@@ -59,11 +65,14 @@
   });
 
   function fetchUser(username) {
+    $("#message").html("Searching for User...");
     $.get("/api/user?username="+username, handleSearchResponse);
   }
 
   // Handle the search response. Display the user if found. Display error if not.
   function handleSearchResponse(response) {
+
+    $("#message").html("");
 
     // Remove all existing results
     $("#results").empty();
@@ -106,9 +115,10 @@
     }
 
     function fetchFollowers(pageNumber) {
+      $("#message").html("Fetching followers...");
 
       $("#followersContainer").empty();
-      $("#followersContainer").append("<div id='followersNav' /><div id='followers' />");
+      $("#followersContainer").append("<div id='followersNav' class='row'></div><div id='followers' class='row'></div>");
 
       url = "/api/followers?user="+selectedUser.login+"&page="+pageNumber;
 
@@ -118,6 +128,8 @@
 
     function handlefetchFollowersResponse(followers) {
 
+      $("#message").html("");
+
       // Append a new div for each follower
       for(let i = 0; i < followers.length; i++) {
         let follower = followers[i];
@@ -125,15 +137,15 @@
       }
       followerStartIndex = (pageNumberOfFollowers - 1) * followersPerPage + 1;
       followerEndIndex = followerStartIndex + followers.length - 1;
-      $("#followersNav").append("<div class='row'><span>showing "+followerStartIndex+" - "+followerEndIndex+" of "+selectedUser.followers_count+" total followers</span></div>");
+      $("#followersNav").append("<div class='col-md-3'><span>showing "+followerStartIndex+" - "+followerEndIndex+" of "+selectedUser.followers+" total followers</span></div>");
 
       // If there are previous followers, add a previous button
       if(pageNumberOfFollowers > 1) {
-        $("#followersNav").append("<div class='row'><a href='javascript:void(0);' onclick='fetchPreviousPageOfFollowers();' class='btn btn-primary'>show previous followers</a></div>");
+        $("#followersNav").append("<div class='col-md-3'><a href='javascript:void(0);' onclick='fetchPreviousPageOfFollowers();' class='btn btn-primary'>show previous followers</a></div>");
       }
       // If there are still more followers, add a next button
       if(selectedUser.followers > followersPerPage * pageNumberOfFollowers) {
-        $("#followersNav").append("<div class='row'><a href='javascript:void(0);' onclick='fetchNextPageOfFollowers();' class='btn btn-primary'>show more followers</a></div>");
+        $("#followersNav").append("<div class='col-md-3'><a href='javascript:void(0);' onclick='fetchNextPageOfFollowers();' class='btn btn-primary'>show more followers</a></div>");
       }
     }
 
